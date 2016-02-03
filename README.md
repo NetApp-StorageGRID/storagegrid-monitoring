@@ -3,6 +3,8 @@
 ## Introduction
 This repository contains a simple monitoring stack for StorageGRID Webscale. This is not a fully production ready stack.
 
+![alt tag](https://raw.github.com/csiebler/storagegrid-monitoring/master/screenshots/screenshot01.png)
+
 The containerized setup is based on:
 
 * Logstash
