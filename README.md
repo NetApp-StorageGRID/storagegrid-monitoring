@@ -9,6 +9,10 @@ The containerized setup is based on:
 * Elasticsearch
 * Grafana
 
+## Configuration
+
+At this point in time, the StorageGRID Audit Logs need to be mounted on the Docker host under `/mnt/auditlogs/`
+
 ## Notes
 This is not an official NetApp repository. NetApp Inc. is not affiliated with the posted examples in any way.
 
