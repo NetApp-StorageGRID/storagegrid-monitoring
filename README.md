@@ -15,9 +15,9 @@ At this point in time, the StorageGRID Audit Logs need to be mounted on the Dock
 
 ## Usage
 
-Start the stack with the `./startup.sh` script.
-Terminte the stack with the `./shutdown.sh` script.
-The dashboard will be automatically redployed from `grafana/dashboards/simple.json` on each start.
+* Start the stack with the `./startup.sh` script.
+* Terminte the stack with the `./shutdown.sh` script.
+* The dashboard will be automatically redployed from `grafana/dashboards/simple.json` on each start.
 
 Grafana is accessible at `http://<dockerhost>:3000/`, the login credentials are `admin/admin`.
 
