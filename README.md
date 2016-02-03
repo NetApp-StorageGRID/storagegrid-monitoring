@@ -13,6 +13,14 @@ The containerized setup is based on:
 
 At this point in time, the StorageGRID Audit Logs need to be mounted on the Docker host under `/mnt/auditlogs/`
 
+## Usage
+
+Start the stack with the `./startup.sh` script.
+Terminte the stack with the `./shutdown.sh` script.
+The dashboard will be automatically redployed from `grafana/dashboards/simple.json` on each start.
+
+Grafana is accessible at `http://<dockerhost>:3000/`, the login credentials are `admin/admin`.
+
 ## Notes
 This is not an official NetApp repository. NetApp Inc. is not affiliated with the posted examples in any way.
 
