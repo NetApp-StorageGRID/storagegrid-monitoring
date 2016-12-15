@@ -1,24 +1,32 @@
-logstash:
-  image: logstash:latest
-  command: logstash -f /etc/logstash/conf.d/logstash.conf
-  volumes:
-    - ./logstash/config:/etc/logstash/conf.d
-    - /mnt/auditlogs:/mnt/auditlogs/
-  ports:
-    - "5000:5000"
-  links:
-    - elasticsearch
+version: '2'
 
-elasticsearch:
-  image: elasticsearch:latest
-  command: elasticsearch -Des.network.host=0.0.0.0
-  ports:
-    - "9200:9200"
-    - "9300:9300"
+services:
+  elasticsearch:
+    image: elasticsearch:5.1.1-alpine
+    environment:
+      ES_JAVA_OPTS: "-Xms2g -Xmx2g"
+    ports:
+      - "9200:9200"
+      - "9300:9300"
 
-grafana:
-  image: grafana/grafana
-  ports:
-    - "3000:3000"
-  links:
-    - elasticsearch
+  logstash:
+    depends_on:
+      - elasticsearch
+    image: logstash:5.1.1-alpine
+    command: logstash -f /etc/logstash/conf.d/logstash.conf
+    volumes:
+      - ./logstash/config:/etc/logstash/conf.d
+      - /mnt/auditlogs:/mnt/auditlogs/
+    ports:
+      - "5000:5000"
+    links:
+      - elasticsearch
+
+  grafana:
+    depends_on:
+      - elasticsearch
+    image: grafana/grafana:4.0.2
+    ports:
+      - "3000:3000"
+    links:
+      - elasticsearch
