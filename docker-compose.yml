@@ -4,7 +4,7 @@ services:
   elasticsearch:
     image: elasticsearch:5.1.1-alpine
     environment:
-      ES_JAVA_OPTS: "-Xms2g -Xmx2g"
+      ES_JAVA_OPTS: "-Xms2g -Xmx2g -Des.network.host=0.0.0.0"
     ports:
       - "9200:9200"
       - "9300:9300"
@@ -12,7 +12,7 @@ services:
   logstash:
     depends_on:
       - elasticsearch
-    image: logstash:5.1.1-alpine
+    image: logstash:5.1.1
     command: logstash -f /etc/logstash/conf.d/logstash.conf
     volumes:
       - ./logstash/config:/etc/logstash/conf.d
