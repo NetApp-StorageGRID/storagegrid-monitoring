@@ -22,7 +22,7 @@ The containerized setup is based on:
 * Start the stack via `./startup.sh`
 * Terminate the stack via `./shutdown.sh`
 * Grafana is accessible at `http://<dockerhost>:3000/`, the login credentials are `admin/admin`
-* After initial deployment, goto `Data Sources`, select `es-sgaudit` and click `Save & Test` (this tells Grafana to re-validate the data source)
+* After initial deployment, log into Grafana, then goto `Data Sources`, select `es-sgaudit` and click `Save & Test` (this tells Grafana to re-validate the data source)
 * The dashboard will be automatically redployed from `grafana/dashboards/storagegrid-webscale.json`
 * The current dashboard configuration can be exported via `update-dashboard.sh`, which updates `grafana/dashboards/storagegrid-webscale.json`
 
