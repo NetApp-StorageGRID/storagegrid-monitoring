@@ -14,7 +14,7 @@ The containerized setup is based on:
 ## Configuration
 
 1. Your StorageGRID Webscale Audit Logs need to be mounted on the Docker host under `/mnt/auditlogs/`
-1. Elasticsearch requires quite some memory, so make sure your Docker hosts provides sufficent by executing `sysctl -w vm.max_map_count=262144` ([click here]: https://www.elastic.co/guide/en/elasticsearch/reference/current/vm-max-map-count.html for more details)
+1. Elasticsearch requires quite some memory, so make sure your Docker hosts provides sufficent by executing `sysctl -w vm.max_map_count=262144` ([click here](https://www.elastic.co/guide/en/elasticsearch/reference/current/vm-max-map-count.html for more details))
 
 
 ## Usage
