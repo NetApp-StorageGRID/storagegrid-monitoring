@@ -2,7 +2,7 @@ version: '2'
 
 services:
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:5.2.2 
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.5.4
     environment:
       ES_JAVA_OPTS: "-Xms1g -Xmx1g"
       xpack.security.enabled: "false"
@@ -16,17 +16,20 @@ services:
   logstash:
     links:
       - elasticsearch
-    image: docker.elastic.co/logstash/logstash:5.2.2
+    image: docker.elastic.co/logstash/logstash:6.5.4
     volumes:
+      - ./plugins:/apps
       - /mnt/auditlogs:/mnt/auditlogs/
       - ./logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml
       - ./logstash/pipeline:/usr/share/logstash/pipeline
     ports:
       - "5000:5000"
+    entrypoint:
+      - /apps/docker-entrypoint-ls-plugin.sh
 
   grafana:
     links:
       - elasticsearch
-    image: grafana/grafana:4.1.2
+    image: grafana/grafana:5.4.2
     ports:
       - "3000:3000"
