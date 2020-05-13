@@ -2,7 +2,7 @@
 
 docker-compose up &
 
-sleep 20
+sleep 40
 
 # Add Elasticsearch datasource to Grafana
 curl -X POST 'http://admin:admin@localhost:3000/api/datasources' \
