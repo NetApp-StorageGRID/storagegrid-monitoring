@@ -23,19 +23,26 @@ The containerized setup is based on:
    sudo python3 get-pip.py
    pip --version
 ```
-1. Find the uuid of the file system we created in the previous step by executing `sudo blkid`, then add the following two lines to `/etc/fstab`. After adding these two lines, run `mount -a` to mount the filesystems. If error occurs when mounting the remote file system, please run `/sbin/mount.nfs`.
+2. Find the uuid of the file system we created in the previous step by executing `sudo blkid`, then add the following two lines to `/etc/fstab`. After adding these two lines, run `mount -a` to mount the filesystems. If error occurs when mounting the remote file system, please run `/sbin/mount.nfs`.
 ```
    UUID=<uuid of the file system created in last step> /var/lib/docker xfs defaults 0 0
    <ip address of the admin node>:/var/local/audit/export /mnt/auditlogs nfs hard,intr 0 0
 ```
-1. Install docker and docker-compose
+3. Install docker and docker-compose
 
-1. Your StorageGRID Webscale Audit Logs need to be mounted on the Docker host under `/mnt/auditlogs/`. 
+4. Your StorageGRID Webscale Audit Logs need to be mounted on the Docker host under `/mnt/auditlogs/`. 
    * If desired, you may specify a path to any directory containing a valid `audit.log` by modifying volume `/mnt/auditlogs:/mnt/auditlogs` in docker-compose.yml to `/desired/directory:/mnt/auditlogs`.
-1. Elasticsearch requires alot of memory, so make sure your Docker host provides enough by executing `sysctl -w vm.max_map_count=262144` on the host ([click here](https://www.elastic.co/guide/en/elasticsearch/reference/current/vm-max-map-count.html) for more details).
+5. Elasticsearch requires alot of memory, so make sure your Docker host provides enough by executing `sysctl -w vm.max_map_count=262144` on the host ([click here](https://www.elastic.co/guide/en/elasticsearch/reference/current/vm-max-map-count.html) for more details).
 ### On the admin node
 1. Open port 9090 on the admin node by executing `sudo run-host-command ufw allow 9090` to make use of StorageGRID's Prometheus metrics.
 2. Use `config_nfs.rb` to export `/var/local/audit/export` to the linux client, the ruby script can be found under `/usr/local/sbin/`.
+3. Install filebeat by executing the following commands.
+```
+curl -L -O https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-7.7.0-amd64.deb
+sudo dpkg -i filebeat-7.7.0-amd64.deb
+```
+4. Edit the `filebeat.yml` file under `/etc/filebeat`. Change the log path to `/var/local/audit/export/*.log`and logstash output to `<linux-host-ip>:5044`. Finally enable the configuration by setting `enabled` to true. A sample [filebeat.yml](./filebeat.yml) file is also provided.
+5. Restart the filebeat service by executing `sudo service filebeat restart`.
 
 
 ## Usage
