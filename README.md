@@ -23,20 +23,12 @@ The containerized setup is based on:
    sudo python3 get-pip.py
    pip --version
 ```
-2. Create a xfs for the docker image with the following commands:
-```
-   sudo fdisk /dev/sdb (create partition 1)
-	   > type n to create a new partition and assign space for it
-   sudo mkfs.xfs /dev/sdb1
-   sudo mkdir /var/lib/docker
-   sudo mkdir /mnt/auditlogs
-```
-3. Find the uuid of the file system we created in the previous step by executing `sudo blkid`, then add the following two lines to `/etc/fstab`. After adding these two lines, run `mount -a` to mount the filesystems. If error occurs when mounting the remote file system, please run `/sbin/mount.nfs`.
+1. Find the uuid of the file system we created in the previous step by executing `sudo blkid`, then add the following two lines to `/etc/fstab`. After adding these two lines, run `mount -a` to mount the filesystems. If error occurs when mounting the remote file system, please run `/sbin/mount.nfs`.
 ```
    UUID=<uuid of the file system created in last step> /var/lib/docker xfs defaults 0 0
    <ip address of the admin node>:/var/local/audit/export /mnt/auditlogs nfs hard,intr 0 0
 ```
-4. Install docker and docker-compose
+1. Install docker and docker-compose
 
 1. Your StorageGRID Webscale Audit Logs need to be mounted on the Docker host under `/mnt/auditlogs/`. 
    * If desired, you may specify a path to any directory containing a valid `audit.log` by modifying volume `/mnt/auditlogs:/mnt/auditlogs` in docker-compose.yml to `/desired/directory:/mnt/auditlogs`.

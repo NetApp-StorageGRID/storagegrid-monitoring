@@ -19,11 +19,11 @@ services:
     image: docker.elastic.co/logstash/logstash:6.5.4
     volumes:
       - ./plugins:/apps
-      - /mnt/auditlogs:/mnt/auditlogs/
       - ./logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml
       - ./logstash/pipeline:/usr/share/logstash/pipeline
     ports:
       - "5000:5000"
+      - "5044:5044"
     entrypoint:
       - /apps/docker-entrypoint-ls-plugin.sh
 
