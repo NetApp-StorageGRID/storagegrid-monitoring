@@ -34,7 +34,21 @@ The containerized setup is based on:
    * If desired, you may specify a path to any directory containing a valid `audit.log` by modifying volume `/mnt/auditlogs:/mnt/auditlogs` in docker-compose.yml to `/desired/directory:/mnt/auditlogs`.
 5. Elasticsearch requires alot of memory, so make sure your Docker host provides enough by executing `sysctl -w vm.max_map_count=262144` on the host ([click here](https://www.elastic.co/guide/en/elasticsearch/reference/current/vm-max-map-count.html) for more details).
 ### On the admin node
-1. Open port 9090 on the admin node by executing `sudo run-host-command ufw allow 9090` to make use of StorageGRID's Prometheus metrics.
+1. Open port access on the admin node to make use of StorageGRID's Prometheus metrics. Add both of these lines to `/etc/storagegrid-firewall.d/custom.nft`:
+```
+add element inet sgfilter custom_ports {3000} # Grafana 
+add element inet sgfilter custom_ports {9090} # Prometheus
+```
+Add the following two lines to `/etc/storagegrid-persistence.d/custom.conf`:
+```
+/etc/storagegrid-persistence.d/custom.conf
+/etc/storagegrid-firewall.d/custom.nft
+```
+Restart the service to apply the changes by executing the following commands:
+```
+service persistence restart
+/usr/lib/storagegrid-firewall/configure.sh --full
+```
 2. Use `config_nfs.rb` to export `/var/local/audit/export` to the linux client, the ruby script can be found under `/usr/local/sbin/`.
 3. Install filebeat by executing the following commands.
 ```
