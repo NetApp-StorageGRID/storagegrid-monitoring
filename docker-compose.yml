@@ -24,8 +24,6 @@ services:
     ports:
       - "5000:5000"
       - "5044:5044"
-    # expose:
-    #   - "5044"
     entrypoint:
       - /apps/docker-entrypoint-ls-plugin.sh
 
