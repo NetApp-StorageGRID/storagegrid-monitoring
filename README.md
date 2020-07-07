@@ -37,10 +37,9 @@ sudo docker info | grep Driver
 3. Elasticsearch requires alot of memory, so make sure your Docker host provides enough by executing `sysctl -w vm.max_map_count=262144` on the host ([click here](https://www.elastic.co/guide/en/elasticsearch/reference/current/vm-max-map-count.html) for more details).
 ### On the admin node
 Note that after upgrading the grid, the following steps needs to be done again.
-1. Open port access on the admin node to make use of StorageGRID's Prometheus metrics. Add both of these lines to `/etc/storagegrid-firewall.d/custom.nft`:
+1. Open port access on the admin node to make use of StorageGRID's Prometheus metrics. Add the following line to `/etc/storagegrid-firewall.d/custom.nft`:
 ```
-add element inet sgfilter custom_ports {3000} # Grafana 
-add element inet sgfilter custom_ports {9090} # Prometheus
+add element inet sgfilter custom_ports {9091} # Prometheus
 ```
 * Add the following two lines to `/etc/storagegrid-persistence.d/custom.conf`:
 ```
@@ -52,22 +51,16 @@ add element inet sgfilter custom_ports {9090} # Prometheus
 service persistence restart
 sudo /usr/lib/storagegrid-firewall/configure.sh --full
 ```
-2. Install filebeat by executing the following commands.
-```
-curl -L -O https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-7.7.0-amd64.deb
-sudo dpkg -i filebeat-7.7.0-amd64.deb
-```
-3. Edit the `filebeat.yml` file under `/etc/filebeat`. Change the log path to `/var/local/audit/export/*.log`and logstash output to `<linux-host-ip>:5044`. Finally enable the configuration by setting `enabled` to true. A sample [filebeat.yml](./filebeat.yml) file is also provided.
-4. Restart the filebeat service by executing `sudo service filebeat restart`.
+2. Configure nginx to enable reverse proxy basic authentication and HTTPS.
+3. Add the public key of the linux machine to the `authorized_keys` on the admin node. 
 
 ## Usage
-* Start the stack via `./startup.sh`. (Note that on the first run, it takes longer because it needs to pull images from Docker Hub)
-* Start the containers via `./start-container.sh`. Please use this script to start after all containers are successfully created using the `startup.sh`.
-* Stop the containers via `./stop-container.sh`.
+* Start the stack via `./start.sh`. (Note that on the first run, it takes longer because it needs to pull images from Docker Hub)
+* Start the containers via `./start-container.sh`. Stop the containers via `./stop-container.sh`.
 * Grafana is accessible at `http://<dockerhost>:3000/`, the login credentials are `admin/admin`.
 * After initial deployment, log into Grafana, go to `Data Sources`, select `es-sgaudit`, and click `Save & Test` (this tells Grafana to re-validate the data source). You must also select the `sg-prometheus` data source, enter the IP address of the admin node as indicated in the `URL` field, and click `Save & Test`.
 * The dashboard will be automatically redployed.
-* The current dashboard configuration can be exported via `export-dashboard.sh`, which updates `grafana/dashboards/storagegrid-webscale-monitoring.json`. Please manually fill in the admin password in `export-dashboard.sh` before running the script.
+* The current dashboard configuration can be exported via `export-dashboard.sh`, which updates `grafana/dashboards/storagegrid-webscale-monitoring.json`.
 
 ## Common Questions
 1. An NPE occurs and the elasticsearch container exits with code 78
