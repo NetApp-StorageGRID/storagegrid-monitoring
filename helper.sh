@@ -21,4 +21,4 @@ sleep 3
 curl -X POST 'http://admin:admin@localhost:3000/api/dashboards/db' -H 'Content-Type: application/json;charset=UTF-8' -d @grafana/dashboards/storagegrid-webscale-monitoring.json
 
 # Sync audit log to local directory
-while true;do rsync -rtvO --include "**.log" --exclude "*.*" --append -e "ssh -p 22" admin@10.193.150.88:/var/local/audit/export/ ./audit/;sleep 5;done;
+while true;do rsync -rtvO --include "**.log" --exclude "*.*" --append -e "ssh -p 22" root@<admin node ip>:/var/local/audit/export/ ./audit/;sleep 5;done;
