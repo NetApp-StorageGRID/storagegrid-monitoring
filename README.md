@@ -35,6 +35,31 @@ sudo docker info | grep Driver
 * You should be able to see overlay2 driver if the installation is successful.
 
 3. Elasticsearch requires alot of memory, so make sure your Docker host provides enough by executing `sysctl -w vm.max_map_count=262144` on the host ([click here](https://www.elastic.co/guide/en/elasticsearch/reference/current/vm-max-map-count.html) for more details).
+
+* Skip the rest steps if there is no security concern adding the public key of the linux machine to the admin node.
+
+4. Update and install the necessary package with the following commands:
+```
+   sudo apt-get update
+   sudo apt install openssh-server
+   sudo systemctl status ssh
+   curl "https://bootstrap.pypa.io/get-pip.py" -o "get-pip.py"
+   sudo python3 get-pip.py
+   pip --version
+```
+5. Create a xfs for the docker image with the following commands:
+```
+   sudo fdisk /dev/sdb (create partition 1)
+	   > type n to create a new partition and assign space for it
+   sudo mkfs.xfs /dev/sdb1
+   sudo mkdir /var/lib/docker
+   sudo mkdir /mnt/auditlogs
+```
+6. Find the uuid of the file system we created in the previous step by executing `sudo blkid`, then add the following two lines to `/etc/fstab`. After adding these two lines, run `mount -a` to mount the filesystems. If error occurs when mounting the remote file system, please run `/sbin/mount.nfs`.
+```
+   UUID=<uuid of the file system created in last step> /var/lib/docker xfs defaults 0 0
+   <ip address of the admin node>:/var/local/audit/export /mnt/auditlogs nfs hard,intr 0 0
+```
 ### On the admin node
 Note that after upgrading the grid, the following steps needs to be done again.
 1. Open port access on the admin node to make use of StorageGRID's Prometheus metrics. Add the following line to `/etc/storagegrid-firewall.d/custom.nft`:
@@ -52,7 +77,7 @@ service persistence restart
 sudo /usr/lib/storagegrid-firewall/configure.sh --full
 ```
 2. Configure nginx to enable reverse proxy basic authentication and HTTPS.
-3. Add the public key of the linux machine to the `authorized_keys` on the admin node. 
+3. Add the public key of the linux machine to the `authorized_keys` on the admin node. (not required if the directory mounting option is desired)
 
 ## Usage
 * Start the stack via `./start.sh`. (Note that on the first run, it takes longer because it needs to pull images from Docker Hub)
