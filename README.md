@@ -72,6 +72,28 @@ Add the public key of the linux machine to the `authorized_keys` on the admin no
 1. Precheck fails when upgrading from 11.3 to 11.4
    * Solution: comment out the two lines added in the `/etc/storagegrid-persistence.d/custom.conf` file, add these two lines after the upgrade.
 
+## Please read if you are running the stack on Windows
+Grafana deployed on Windows might not work with the default curl installed on Windows, to install the latest curl, please follow the guide below:
+
+* First, download curl for windows at https://curl.haxx.se/windows/
+
+* Find curl.exe within your downloaded package; it's probably under bin.
+
+* Pick a location on your hard drive that will serve as a permanent home for curl:
+
+	- If you want to give curl its own folder, C:\Program Files\curl\ or C:\curl\ will do.
+	- If you have many loose executables, and you do not want to add many individual folders to PATH, use a single folder such as C:\Program Files\tools\ or C:\tools\ for the purpose.
+	- Place curl.exe under the folder. And never move the folder or its contents.
+
+* Next, you'll want to make curl available anywhere from the command line. To do this, add the folder to PATH, like this:
+
+* Click the Windows 10 start menu. Start typing "environment".
+* You'll see the search result Edit the system environment variables. Choose it.
+* A System Properties window will popup. Click the Environment Variables button at the bottom.
+* Select the "Path" variable under "System variables" (the lower box). Click the Edit button.
+* Click the Add button and paste in the folder path where curl.exe lives. Make sure the curl folder path is before /Windows/System32 so that the default curl of windows 10 can be replaced.  
+* Click OK as needed. Close open console windows and reopen, so they get the new PATH.
+
 ## Notes
 This is not an official NetApp repository. NetApp Inc. is not affiliated with the posted examples in any way.
 
