@@ -2,7 +2,7 @@
 
 docker-compose up &
 
-sleep 20
+sleep 40
 
 # Add Elasticsearch datasource to Grafana
 curl -X POST 'http://admin:admin@localhost:3000/api/datasources' \
@@ -19,3 +19,6 @@ sleep 3
 
 # Import Dashboard
 curl -X POST 'http://admin:admin@localhost:3000/api/dashboards/db' -H 'Content-Type: application/json;charset=UTF-8' -d @grafana/dashboards/storagegrid-webscale-monitoring.json
+
+# Sync audit log to local directory
+while true;do rsync -rtvO --include "**.log" --exclude "*.*" --append -e "ssh -p 22" root@<admin node ip>:/var/local/audit/export/ ./audit/;sleep 5;done;

@@ -13,20 +13,86 @@ The containerized setup is based on:
 
 ## Configuration
 
-1. Your StorageGRID Webscale Audit Logs need to be mounted on the Docker host under `/mnt/auditlogs/`. 
-   * If desired, you may specify a path to any directory containing a valid `audit.log` by modifying volume `/mnt/auditlogs:/mnt/auditlogs` in docker-compose.yml to `/desired/directory:/mnt/auditlogs`.
-1. Elasticsearch requires alot of memory, so make sure your Docker host provides enough by executing `sysctl -w vm.max_map_count=262144` on the host ([click here](https://www.elastic.co/guide/en/elasticsearch/reference/current/vm-max-map-count.html) for more details).
-1. To make use of StorageGRID's Prometheus metrics, open port 9090 on the admin node by executing `run-host-command ufw allow 9090`.
+### On the linux machine
+1. Update and install the necessary package with the following commands:
+```
+   sudo apt-get update
+   sudo apt install openssh-server
+   sudo systemctl status ssh
+   curl "https://bootstrap.pypa.io/get-pip.py" -o "get-pip.py"
+   sudo python3 get-pip.py
+   pip --version
+```
+2. Install docker and docker-compose according to the official documentation [here](https://docs.docker.com/engine/install/ubuntu/) or you can install them with the following commands:
+```
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+apt-cache policy docker-ce
+sudo apt-get install -y docker-ce
+sudo systemctl status docker
+sudo docker info | grep Driver
+```
+* You should be able to see overlay2 driver if the installation is successful.
 
+3. Elasticsearch requires alot of memory, so make sure your Docker host provides enough by executing `sysctl -w vm.max_map_count=262144` on the host ([click here](https://www.elastic.co/guide/en/elasticsearch/reference/current/vm-max-map-count.html) for more details).
+
+4. Replace the `<admin node ip>` in `helper.sh` with the actual ip address of the admin node. 
+
+* Skip the rest steps if there is no security concern adding the public key of the linux machine to the admin node.
+
+5. Create a xfs for the docker image with the following commands:
+```
+   sudo fdisk /dev/sdb (create partition 1)
+	   > type n to create a new partition and assign space for it
+   sudo mkfs.xfs /dev/sdb1
+   sudo mkdir /var/lib/docker
+   sudo mkdir /mnt/auditlogs
+```
+6. Find the uuid of the file system we created in the previous step by executing `sudo blkid`, then add the following two lines to `/etc/fstab`. After adding these two lines, run `mount -a` to mount the filesystems. If error occurs when mounting the remote file system, please run `/sbin/mount.nfs`.
+```
+   UUID=<uuid of the file system created in last step> /var/lib/docker xfs defaults 0 0
+   <ip address of the admin node>:/var/local/audit/export /mnt/auditlogs nfs hard,intr 0 0
+```
+### On the admin node
+Add the public key of the linux machine to the `authorized_keys` on the admin node. (not required if the directory mounting option is desired)
 
 ## Usage
-
-* Start the stack via `./startup.sh`.
-* Terminate the stack via `./shutdown.sh`.
+* Start the stack via `./start.sh`. (Note that on the first run, it takes longer because it needs to pull images from Docker Hub)
+* Start the containers via `./start-container.sh`. Stop the containers via `./stop-container.sh`.
 * Grafana is accessible at `http://<dockerhost>:3000/`, the login credentials are `admin/admin`.
 * After initial deployment, log into Grafana, go to `Data Sources`, select `es-sgaudit`, and click `Save & Test` (this tells Grafana to re-validate the data source). You must also select the `sg-prometheus` data source, enter the IP address of the admin node as indicated in the `URL` field, and click `Save & Test`.
 * The dashboard will be automatically redployed.
-* The current dashboard configuration can be exported via `update-dashboard.sh`, which updates `grafana/dashboards/storagegrid-webscale-monitoring.json`.
+* The current dashboard configuration can be exported via `export-dashboard.sh`, which updates `grafana/dashboards/storagegrid-webscale-monitoring.json`.
+
+## Common Questions
+1. An NPE occurs and the elasticsearch container exits with code 78
+   * Solution: Execute `sysctl -w vm.max_map_count=262144`
+1. `run-host-command` not found
+   * Solution: Execute the command under superuser mode
+1. Precheck fails when upgrading from 11.3 to 11.4
+   * Solution: comment out the two lines added in the `/etc/storagegrid-persistence.d/custom.conf` file, add these two lines after the upgrade.
+
+## Please read if you are running the stack on Windows
+Grafana deployed on Windows might not work with the default curl installed on Windows, to install the latest curl, please follow the guide below:
+
+* First, download curl for windows at https://curl.haxx.se/windows/
+
+* Find curl.exe within your downloaded package; it's probably under bin.
+
+* Pick a location on your hard drive that will serve as a permanent home for curl:
+
+	- If you want to give curl its own folder, C:\Program Files\curl\ or C:\curl\ will do.
+	- If you have many loose executables, and you do not want to add many individual folders to PATH, use a single folder such as C:\Program Files\tools\ or C:\tools\ for the purpose.
+	- Place curl.exe under the folder. And never move the folder or its contents.
+
+* Next, you'll want to make curl available anywhere from the command line. To do this, add the folder to PATH, like this:
+
+* Click the Windows 10 start menu. Start typing "environment".
+* You'll see the search result Edit the system environment variables. Choose it.
+* A System Properties window will popup. Click the Environment Variables button at the bottom.
+* Select the "Path" variable under "System variables" (the lower box). Click the Edit button.
+* Click the Add button and paste in the folder path where curl.exe lives. Make sure the curl folder path is before /Windows/System32 so that the default curl of windows 10 can be replaced.  
+* Click OK as needed. Close open console windows and reopen, so they get the new PATH.
 
 ## Notes
 This is not an official NetApp repository. NetApp Inc. is not affiliated with the posted examples in any way.
